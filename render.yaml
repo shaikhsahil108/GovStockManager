@@ -4,8 +4,10 @@ services:
     env: node
     plan: free
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install --build-from-source
     startCommand: npm start
     envVars:
       - key: PORT
         value: 10000
+      - key: npm_config_build_from_source
+        value: "true"
