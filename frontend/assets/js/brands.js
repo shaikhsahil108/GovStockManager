@@ -45,9 +45,9 @@ async function loadBrands() {
 
     try {
 
-        const response = await fetch(
-            `${API_BASE}/brands`
-        );
+        const response = await (typeof fetchWithRetry === "function"
+            ? fetchWithRetry(`${API_BASE}/brands`)
+            : fetch(`${API_BASE}/brands`));
 
         const result = await response.json();
 

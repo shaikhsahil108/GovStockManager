@@ -39,9 +39,9 @@ async function loadRestaurants() {
 
 
         const response =
-            await fetch(
-                `${API_BASE}/restaurants`
-            );
+            await (typeof fetchWithRetry === "function"
+                ? fetchWithRetry(`${API_BASE}/restaurants`)
+                : fetch(`${API_BASE}/restaurants`));
 
 
         if (!response.ok) {

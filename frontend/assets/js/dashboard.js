@@ -10,9 +10,9 @@ async function loadDashboard() {
         // ===============================
         // GET RESTAURANTS
         // ===============================
-        const restaurantResponse = await fetch(
-            `${API_BASE}/restaurants`
-        );
+        const restaurantResponse = await (typeof fetchWithRetry === "function"
+            ? fetchWithRetry(`${API_BASE}/restaurants`)
+            : fetch(`${API_BASE}/restaurants`));
 
         if (!restaurantResponse.ok) {
             throw new Error(
@@ -32,9 +32,9 @@ async function loadDashboard() {
         // ===============================
         // GET BRANDS
         // ===============================
-        const brandResponse = await fetch(
-            `${API_BASE}/brands`
-        );
+        const brandResponse = await (typeof fetchWithRetry === "function"
+            ? fetchWithRetry(`${API_BASE}/brands`)
+            : fetch(`${API_BASE}/brands`));
 
         if (!brandResponse.ok) {
             throw new Error(
