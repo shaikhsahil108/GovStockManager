@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gov Stock Manager - Settings</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================
+     SIDEBAR
+========================================= -->
+
+<div class="sidebar">
+
+    <div class="sidebar-header">
+
+        <h3>🏪 Gov Stock</h3>
+
+        <small>
+            Stock Management System
+        </small>
+
+    </div>
+
+
+    <nav class="sidebar-menu">
+
+        <a href="dashboard.html">
+            🏠
+            <span>Dashboard</span>
+        </a>
+
+
+        <a href="restaurants.html">
+            🍽️
+            <span>Restaurants</span>
+        </a>
+
+
+        <a href="brands.html">
+            🏷️
+            <span>Brands</span>
+        </a>
+
+
+        <a href="updater.html">
+            📄
+            <span>Excel Updater</span>
+        </a>
+
+
+        <a href="settings.html" class="active">
+            ⚙️
+            <span>Settings</span>
+        </a>
+
+    </nav>
+
+
+    <div class="sidebar-footer">
+
+        <small>
+            Gov Stock Manager
+        </small>
+
+        <br>
+
+        <small>
+            v1.0.0
+        </small>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================
+     MAIN CONTENT
+========================================= -->
+
+<div class="content">
+
+
+    <!-- TOP BAR -->
+
+    <div class="dashboard-topbar">
+
+        <div>
+
+            <h2>
+                Settings
+            </h2>
+
+            <p class="text-muted mb-0">
+                Manage application preferences and system settings
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- STATUS -->
+
+    <div
+        id="settingsStatus"
+        class="alert d-none"
+    ></div>
+
+
+
+    <!-- =====================================
+         GENERAL SETTINGS
+    ====================================== -->
+
+    <div class="dashboard-panel mb-4">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    ⚙️ General Settings
+                </h5>
+
+                <p>
+                    Basic application configuration
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-4">
+
+            <div class="row g-4">
+
+
+                <!-- Application Name -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Application Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="appName"
+                        class="form-control"
+                        value="Gov Stock Manager"
+                    >
+
+                </div>
+
+
+
+                <!-- Version -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Application Version
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="1.0.0"
+                        disabled
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         DEFAULT RESTAURANT
+    ====================================== -->
+
+    <div class="dashboard-panel mb-4">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    🏪 Default Restaurant
+                </h5>
+
+                <p>
+                    Select the restaurant used by default for stock operations
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-4">
+
+            <div class="row g-4">
+
+
+                <div class="col-md-8">
+
+                    <label class="form-label">
+                        Default Restaurant
+                    </label>
+
+                    <select
+                        id="defaultRestaurant"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Loading restaurants...
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
+                        Current Status
+                    </label>
+
+                    <div class="mt-2">
+
+                        <span
+                            id="restaurantStatus"
+                            class="badge bg-secondary"
+                        >
+                            Checking...
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         EXCEL SETTINGS
+    ====================================== -->
+
+    <div class="dashboard-panel mb-4">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    📄 Excel Updater Settings
+                </h5>
+
+                <p>
+                    Configure how Excel stock updates behave
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-4">
+
+
+            <!-- Auto Download -->
+
+            <div
+                class="setting-row d-flex justify-content-between align-items-center"
+            >
+
+                <div>
+
+                    <strong>
+                        Automatically prepare updated Excel
+                    </strong>
+
+                    <div class="text-muted small">
+                        Generate the updated workbook after processing
+                    </div>
+
+                </div>
+
+
+                <div class="form-check form-switch">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="autoDownload"
+                        checked
+                    >
+
+                </div>
+
+            </div>
+
+
+            <hr>
+
+
+            <!-- Keep Formatting -->
+
+            <div
+                class="setting-row d-flex justify-content-between align-items-center"
+            >
+
+                <div>
+
+                    <strong>
+                        Preserve Excel formatting
+                    </strong>
+
+                    <div class="text-muted small">
+                        Keep existing workbook formatting during updates
+                    </div>
+
+                </div>
+
+
+                <div class="form-check form-switch">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="preserveFormatting"
+                        checked
+                    >
+
+                </div>
+
+            </div>
+
+
+            <hr>
+
+
+            <!-- Confirm Update -->
+
+            <div
+                class="setting-row d-flex justify-content-between align-items-center"
+            >
+
+                <div>
+
+                    <strong>
+                        Confirm before updating stock
+                    </strong>
+
+                    <div class="text-muted small">
+                        Ask for confirmation before modifying Excel data
+                    </div>
+
+                </div>
+
+
+                <div class="form-check form-switch">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="confirmUpdate"
+                        checked
+                    >
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         APPEARANCE
+    ====================================== -->
+
+    <div class="dashboard-panel mb-4">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    🎨 Appearance
+                </h5>
+
+                <p>
+                    Customize the application interface
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-4">
+
+            <div class="row g-4">
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Interface Theme
+                    </label>
+
+                    <select
+                        id="theme"
+                        class="form-select"
+                    >
+
+                        <option value="light">
+                            ☀️ Light
+                        </option>
+
+                        <option value="dark">
+                            🌙 Dark
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Sidebar
+                    </label>
+
+                    <select
+                        id="sidebarMode"
+                        class="form-select"
+                    >
+
+                        <option value="expanded">
+                            Expanded
+                        </option>
+
+                        <option value="compact">
+                            Compact
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         SYSTEM STATUS
+    ====================================== -->
+
+    <div class="dashboard-panel mb-4">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    🖥️ System Status
+                </h5>
+
+                <p>
+                    Check connection with the backend
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-4">
+
+
+            <div class="row g-4">
+
+
+                <!-- API -->
+
+                <div class="col-md-4">
+
+                    <div class="border rounded-3 p-3">
+
+                        <div class="d-flex justify-content-between">
+
+                            <strong>
+                                API Server
+                            </strong>
+
+                            <span
+                                id="apiStatus"
+                                class="badge bg-warning"
+                            >
+                                Checking
+                            </span>
+
+                        </div>
+
+                        <small class="text-muted">
+                            http://localhost:3000
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Restaurants -->
+
+                <div class="col-md-4">
+
+                    <div class="border rounded-3 p-3">
+
+                        <div class="d-flex justify-content-between">
+
+                            <strong>
+                                Restaurants
+                            </strong>
+
+                            <span
+                                id="restaurantConnection"
+                                class="badge bg-warning"
+                            >
+                                Checking
+                            </span>
+
+                        </div>
+
+                        <small class="text-muted">
+                            Restaurant database
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Brands -->
+
+                <div class="col-md-4">
+
+                    <div class="border rounded-3 p-3">
+
+                        <div class="d-flex justify-content-between">
+
+                            <strong>
+                                Brands
+                            </strong>
+
+                            <span
+                                id="brandConnection"
+                                class="badge bg-warning"
+                            >
+                                Checking
+                            </span>
+
+                        </div>
+
+                        <small class="text-muted">
+                            Brand database
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         ACTIONS
+    ====================================== -->
+
+    <div class="dashboard-panel mb-4">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    🔧 Application Actions
+                </h5>
+
+                <p>
+                    Manage local application settings
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-4">
+
+
+            <div class="d-flex gap-2 flex-wrap">
+
+
+                <button
+                    class="btn btn-primary"
+                    onclick="saveSettings()"
+                >
+                    💾 Save Settings
+                </button>
+
+
+                <button
+                    class="btn btn-outline-secondary"
+                    onclick="resetSettings()"
+                >
+                    ↩️ Reset Settings
+                </button>
+
+
+                <button
+                    class="btn btn-outline-primary"
+                    onclick="checkSystemStatus()"
+                >
+                    🔄 Check Connection
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- Bootstrap -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
+<!-- Settings JS -->
+
+<script src="js/settings.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gov Stock Manager - Excel Updater</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================
+     SIDEBAR
+===================================== -->
+
+<div class="sidebar">
+
+    <div class="sidebar-header">
+
+        <h3>🏪 Gov Stock</h3>
+
+        <small>
+            Stock Management System
+        </small>
+
+    </div>
+
+
+    <nav class="sidebar-menu">
+
+        <a href="dashboard.html">
+            🏠
+            <span>Dashboard</span>
+        </a>
+
+        <a href="restaurants.html">
+            🍽️
+            <span>Restaurants</span>
+        </a>
+
+        <a href="brands.html">
+            🏷️
+            <span>Brands</span>
+        </a>
+
+        <a href="updater.html" class="active">
+            📄
+            <span>Excel Updater</span>
+        </a>
+
+        
+
+        <a href="settings.html">
+            ⚙️
+            <span>Settings</span>
+        </a>
+
+    </nav>
+
+
+    <div class="sidebar-footer">
+
+        <small>
+            Gov Stock Manager
+        </small>
+
+        <br>
+
+        <small>
+            v1.0.0
+        </small>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     CONTENT
+===================================== -->
+
+<div class="content">
+
+
+    <!-- TOP BAR -->
+
+    <div class="dashboard-topbar">
+
+        <div>
+
+            <h2>
+                Excel Inventory Updater
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update government Excel stock records
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         STATUS
+    ===================================== -->
+
+    <div
+        id="status"
+        class="alert d-none"
+    ></div>
+
+
+
+    <!-- =====================================
+         MAIN PANEL
+    ===================================== -->
+
+    <div class="dashboard-panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    Update Stock
+                </h5>
+
+                <p>
+                    Upload Excel and update inventory
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="p-4">
+
+            <!-- FILE -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Upload Government Excel
+                </label>
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    class="form-control"
+                    accept=".xlsx,.xls"
+                >
+
+                <small class="text-muted">
+                    Supported formats: .xlsx, .xls
+                </small>
+
+            </div>
+
+
+
+            <!-- DATE -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Select Date
+                </label>
+
+                <input
+                    type="date"
+                    id="dateInput"
+                    class="form-control"
+                >
+
+            </div>
+
+
+
+            <!-- BRAND -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Select Brand
+                </label>
+
+                <select
+                    id="brandSelect"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Loading brands...
+                    </option>
+
+                </select>
+
+                <small class="text-muted">
+                    Brands are loaded automatically from the database.
+                </small>
+
+            </div>
+
+
+
+            <!-- ITEM CODE PREVIEW -->
+
+            <div
+                id="itemCodeBox"
+                class="alert alert-light border d-none"
+            >
+
+                <strong>
+                    Item Code:
+                </strong>
+
+                <code id="selectedItemCode"></code>
+
+            </div>
+
+
+
+            <!-- QUANTITY -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Quantity (Loose Bottles)
+                </label>
+
+                <input
+                    type="number"
+                    id="qtyInput"
+                    class="form-control"
+                    min="0"
+                    placeholder="Enter quantity"
+                >
+
+            </div>
+
+
+
+            <!-- BUTTONS -->
+
+            <div class="d-grid gap-2">
+
+                <button
+                    id="updateBtn"
+                    class="btn btn-success btn-lg"
+                    onclick="processExcel()"
+                >
+
+                    📄 Update Excel
+
+                </button>
+
+
+                <button
+                    id="downloadBtn"
+                    class="btn btn-primary btn-lg d-none"
+                    onclick="downloadExcel()"
+                >
+
+                    ⬇️ Download Updated Excel
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         UPDATE HISTORY
+    ===================================== -->
+
+    <div class="dashboard-panel mt-4">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h5>
+                    Current Session Updates
+                </h5>
+
+                <p>
+                    You can undo individual updates before downloading.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="updateLog"
+            class="p-3"
+        >
+
+            <div class="text-muted text-center py-3">
+                No updates yet.
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     XLSX LIBRARY
+===================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+</script>
+
+
+<!-- Bootstrap JS -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+<!-- Updater JS -->
+
+<script src="js/updater.js"></script>
+
+
+</body>
+
+</html>
