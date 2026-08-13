@@ -68,19 +68,26 @@ app.get("/api", (req, res) => {
 
 
 // =====================================
-// SERVE FRONTEND STATIC FILES (IF AVAILABLE)
+// SERVE FRONTEND STATIC FILES
 // =====================================
 
 const frontendPath = path.join(__dirname, "../frontend/assets");
-app.use(express.static(frontendPath));
 
+// Serve static assets with automatic .html extension matching
+app.use(express.static(frontendPath, { extensions: ["html", "htm"] }));
+
+// Default Root Route
 app.get("/", (req, res) => {
-    res.sendFile(path.join(frontendPath, "dashboard.html"), (err) => {
+    res.sendFile(path.join(frontendPath, "dashboard.html"));
+});
+
+// Fallback for HTML page routes without extension
+app.get("/:page", (req, res, next) => {
+    if (req.params.page.startsWith("api")) return next();
+    const pageFile = path.join(frontendPath, `${req.params.page}.html`);
+    res.sendFile(pageFile, (err) => {
         if (err) {
-            res.json({
-                success: true,
-                message: "🚀 Gov Stock Manager API Running"
-            });
+            res.sendFile(path.join(frontendPath, "dashboard.html"));
         }
     });
 });
