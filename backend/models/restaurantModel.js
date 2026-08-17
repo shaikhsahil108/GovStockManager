@@ -1,24 +1,37 @@
 const db = require("../database/database");
 
-// Get All Restaurants
+// =====================================
+// GET ALL RESTAURANTS
+// =====================================
+
 exports.getAll = (callback) => {
 
-    db.all(
+    db.query(
         `
         SELECT *
         FROM restaurants
         ORDER BY id ASC
         `,
-        [],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, result.rows);
+        }
     );
 
 };
 
-// Create Restaurant
+
+// =====================================
+// CREATE RESTAURANT
+// =====================================
+
 exports.create = (restaurant, callback) => {
 
-    db.run(
+    db.query(
         `
         INSERT INTO restaurants
         (
@@ -28,8 +41,11 @@ exports.create = (restaurant, callback) => {
             address,
             status
         )
+
         VALUES
-        (?, ?, ?, ?, ?)
+        ($1, $2, $3, $4, $5)
+
+        RETURNING id
         `,
         [
             restaurant.name,
@@ -38,24 +54,46 @@ exports.create = (restaurant, callback) => {
             restaurant.address || "",
             restaurant.status || "Active"
         ],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            // SQLite ke this.lastID ko maintain
+            // karne ke liye same format de rahe hain.
+
+            callback.call(
+                {
+                    lastID: result.rows[0].id
+                },
+                null
+            );
+
+        }
     );
 
 };
 
-// Update Restaurant
+
+// =====================================
+// UPDATE RESTAURANT
+// =====================================
+
 exports.update = (id, restaurant, callback) => {
 
-    db.run(
+    db.query(
         `
         UPDATE restaurants
+
         SET
-            name = ?,
-            owner_name = ?,
-            mobile = ?,
-            address = ?,
-            status = ?
-        WHERE id = ?
+            name = $1,
+            owner_name = $2,
+            mobile = $3,
+            address = $4,
+            status = $5
+
+        WHERE id = $6
         `,
         [
             restaurant.name,
@@ -65,21 +103,39 @@ exports.update = (id, restaurant, callback) => {
             restaurant.status || "Active",
             id
         ],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, result);
+        }
     );
 
 };
 
-// Delete Restaurant
+
+// =====================================
+// DELETE RESTAURANT
+// =====================================
+
 exports.delete = (id, callback) => {
 
-    db.run(
+    db.query(
         `
         DELETE FROM restaurants
-        WHERE id = ?
+        WHERE id = $1
         `,
         [id],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, result);
+        }
     );
 
 };

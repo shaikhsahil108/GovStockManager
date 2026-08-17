@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
+    "pg": "^8.23.0",
     "sqlite3": "^6.0.1"
   },
   "devDependencies": {

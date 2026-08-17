@@ -1,46 +1,93 @@
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
+const { Pool } = require("pg");
 
-const dbPath = path.join(__dirname, "govstock.db");
+// =====================================
+// SUPABASE POSTGRESQL CONNECTION
+// =====================================
 
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error("❌ Database connection failed:", err.message);
-        return;
-    }
+if (!process.env.DATABASE_URL) {
+    console.error("❌ DATABASE_URL is not set");
+    process.exit(1);
+}
 
-    console.log("✅ SQLite Connected");
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
 
-    db.serialize(() => {
+    ssl: {
+        rejectUnauthorized: false
+    },
 
-        // Enable Foreign Keys
-        db.run("PRAGMA foreign_keys = ON;");
+    max: 10,
 
-        // -------------------------
-        // Restaurants Table
-        // -------------------------
-        db.run(`
+    idleTimeoutMillis: 30000,
+
+    connectionTimeoutMillis: 10000
+});
+
+// =====================================
+// TEST DATABASE CONNECTION
+// =====================================
+
+pool.connect()
+    .then(client => {
+
+        console.log("✅ Supabase PostgreSQL Connected");
+
+        client.release();
+
+        createTables();
+
+    })
+    .catch(err => {
+
+        console.error(
+            "❌ PostgreSQL connection failed:",
+            err.message
+        );
+
+        process.exit(1);
+    });
+
+
+// =====================================
+// CREATE TABLES
+// =====================================
+
+async function createTables() {
+
+    try {
+
+        // ---------------------------------
+        // Restaurants
+        // ---------------------------------
+
+        await pool.query(`
             CREATE TABLE IF NOT EXISTS restaurants (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                owner_name TEXT,
-                mobile TEXT,
-                address TEXT,
-                status TEXT DEFAULT 'Active',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `, (err) => {
-            if (err) {
-                console.error("❌ Restaurants table error:", err.message);
-            }
-        });
 
-        // -------------------------
-        // Brands Table
-        // -------------------------
-        db.run(`
+                id SERIAL PRIMARY KEY,
+
+                name TEXT NOT NULL,
+
+                owner_name TEXT,
+
+                mobile TEXT,
+
+                address TEXT,
+
+                status TEXT DEFAULT 'Active',
+
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+
+        // ---------------------------------
+        // Brands
+        // ---------------------------------
+
+        await pool.query(`
             CREATE TABLE IF NOT EXISTS brands (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                id SERIAL PRIMARY KEY,
 
                 restaurant_id INTEGER NOT NULL,
 
@@ -58,26 +105,25 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
                 status TEXT DEFAULT 'Active',
 
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-                FOREIGN KEY (restaurant_id)
+                CONSTRAINT fk_brand_restaurant
+
+                    FOREIGN KEY (restaurant_id)
+
                     REFERENCES restaurants(id)
+
                     ON DELETE CASCADE
             )
-        `, (err) => {
-            if (err) {
-                console.error("❌ Brands table error:", err.message);
-            }
-        });
-
-        // =====================================
+        `);
 
 
-        // -------------------------
+        // ---------------------------------
         // Default Restaurant
-        // -------------------------
-        db.run(`
-            INSERT OR IGNORE INTO restaurants
+        // ---------------------------------
+
+        await pool.query(`
+            INSERT INTO restaurants
             (
                 id,
                 name,
@@ -86,6 +132,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 address,
                 status
             )
+
             VALUES
             (
                 1,
@@ -95,14 +142,43 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 '',
                 'Active'
             )
-        `, (err) => {
-            if (err) {
-                console.error("❌ Default restaurant insert error:", err.message);
-            }
-        });
 
-        console.log("✅ Tables Ready");
-    });
-});
+            ON CONFLICT (id) DO NOTHING
+        `);
 
-module.exports = db;
+
+        // ---------------------------------
+        // Sequence Fix
+        // ---------------------------------
+
+        await pool.query(`
+            SELECT setval(
+                pg_get_serial_sequence('restaurants', 'id'),
+                COALESCE(
+                    (SELECT MAX(id) FROM restaurants),
+                    1
+                )
+            )
+        `);
+
+
+        console.log("✅ PostgreSQL Tables Ready");
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Table creation error:",
+            error.message
+        );
+
+    }
+}
+
+
+// =====================================
+// EXPORT
+// =====================================
+
+module.exports = pool;

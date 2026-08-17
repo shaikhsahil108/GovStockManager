@@ -1,20 +1,25 @@
 const db = require("../database/database");
 
-
 // =====================================
 // GET ALL BRANDS
 // =====================================
 
 function getAllBrands(callback) {
 
-    db.all(
+    db.query(
         `
         SELECT *
         FROM brands
         ORDER BY position ASC, id ASC
         `,
-        [],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, result.rows);
+        }
     );
 
 }
@@ -26,7 +31,7 @@ function getAllBrands(callback) {
 
 function addBrand(data, callback) {
 
-    db.run(
+    db.query(
         `
         INSERT INTO brands
         (
@@ -39,7 +44,9 @@ function addBrand(data, callback) {
             size,
             status
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+
+        RETURNING id
         `,
         [
             data.restaurant_id || 1,
@@ -51,7 +58,23 @@ function addBrand(data, callback) {
             data.size || "",
             data.status || "Active"
         ],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            // Controller me this.lastID use ho raha hai
+            // isliye SQLite jaisa response maintain kar rahe hain.
+
+            callback.call(
+                {
+                    lastID: result.rows[0].id
+                },
+                null
+            );
+
+        }
     );
 
 }
@@ -63,21 +86,21 @@ function addBrand(data, callback) {
 
 function updateBrand(id, data, callback) {
 
-    db.run(
+    db.query(
         `
         UPDATE brands
 
         SET
-            restaurant_id = ?,
-            position = ?,
-            brand_name = ?,
-            short_name = ?,
-            item_code = ?,
-            category = ?,
-            size = ?,
-            status = ?
+            restaurant_id = $1,
+            position = $2,
+            brand_name = $3,
+            short_name = $4,
+            item_code = $5,
+            category = $6,
+            size = $7,
+            status = $8
 
-        WHERE id = ?
+        WHERE id = $9
         `,
         [
             data.restaurant_id || 1,
@@ -90,7 +113,15 @@ function updateBrand(id, data, callback) {
             data.status || "Active",
             id
         ],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, result);
+
+        }
     );
 
 }
@@ -102,13 +133,21 @@ function updateBrand(id, data, callback) {
 
 function deleteBrand(id, callback) {
 
-    db.run(
+    db.query(
         `
         DELETE FROM brands
-        WHERE id = ?
+        WHERE id = $1
         `,
         [id],
-        callback
+        (err, result) => {
+
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, result);
+
+        }
     );
 
 }
@@ -118,85 +157,128 @@ function deleteBrand(id, callback) {
 // IMPORT BRANDS
 // =====================================
 
-function importBrands(brands, callback) {
+async function importBrands(brands, callback) {
 
-    db.serialize(() => {
+    const client = await db.connect();
 
-        const deleteQuery = `
-            DELETE FROM brands
-        `;
+    try {
 
-        db.run(
-            deleteQuery,
-            (deleteErr) => {
+        // =====================================
+        // START TRANSACTION
+        // =====================================
 
-                if (deleteErr) {
-                    return callback(deleteErr);
-                }
+        await client.query("BEGIN");
 
 
-                const stmt = db.prepare(
-                    `
-                    INSERT INTO brands
-                    (
-                        restaurant_id,
-                        position,
-                        brand_name,
-                        short_name,
-                        item_code,
-                        category,
-                        size,
-                        status
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    `
-                );
+        // =====================================
+        // DELETE OLD BRANDS
+        // =====================================
 
-
-                let hasError = null;
-
-
-                brands.forEach((brand, index) => {
-
-                    stmt.run(
-                        brand.restaurant_id || 1,
-                        brand.position || (index + 1),
-                        brand.brand_name || "",
-                        brand.short_name,
-                        brand.item_code,
-                        brand.category || "",
-                        brand.size || "",
-                        brand.status || "Active",
-                        (err) => {
-
-                            if (err && !hasError) {
-                                hasError = err;
-                            }
-
-                        }
-                    );
-
-                });
-
-
-                stmt.finalize((err) => {
-
-                    if (err) {
-                        return callback(err);
-                    }
-
-                    if (hasError) {
-                        return callback(hasError);
-                    }
-
-                    callback(null);
-
-                });
-
-            }
+        await client.query(
+            `DELETE FROM brands`
         );
 
-    });
+
+        // =====================================
+        // INSERT NEW BRANDS
+        // =====================================
+
+        for (let index = 0; index < brands.length; index++) {
+
+            const brand = brands[index];
+
+            await client.query(
+                `
+                INSERT INTO brands
+                (
+                    restaurant_id,
+                    position,
+                    brand_name,
+                    short_name,
+                    item_code,
+                    category,
+                    size,
+                    status
+                )
+
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6,
+                    $7,
+                    $8
+                )
+                `,
+                [
+                    brand.restaurant_id || 1,
+
+                    brand.position || (index + 1),
+
+                    brand.brand_name || "",
+
+                    brand.short_name,
+
+                    brand.item_code,
+
+                    brand.category || "",
+
+                    brand.size || "",
+
+                    brand.status || "Active"
+                ]
+            );
+
+        }
+
+
+        // =====================================
+        // COMMIT
+        // =====================================
+
+        await client.query("COMMIT");
+
+        console.log(
+            `✅ ${brands.length} brands imported into PostgreSQL`
+        );
+
+        callback(null);
+
+    }
+
+    catch (error) {
+
+        // =====================================
+        // ROLLBACK
+        // =====================================
+
+        try {
+            await client.query("ROLLBACK");
+        }
+        catch (rollbackError) {
+            console.error(
+                "❌ Rollback error:",
+                rollbackError.message
+            );
+        }
+
+        console.error(
+            "❌ Brand import error:",
+            error.message
+        );
+
+        callback(error);
+
+    }
+
+    finally {
+
+        client.release();
+
+    }
 
 }
 
