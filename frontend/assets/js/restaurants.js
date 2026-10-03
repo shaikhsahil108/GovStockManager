@@ -1,5 +1,3 @@
-const API_BASE = typeof API_URL !== "undefined" ? API_URL : (window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:3000/api" : "/api");
-
 let restaurants = [];
 let deleteRestaurantId = null;
 
@@ -38,10 +36,14 @@ async function loadRestaurants() {
         `;
 
 
+        const restaurantsUrl = `${API_BASE}/restaurants`;
+        console.log("DEBUG API_BASE =", API_BASE);
+        console.log("DEBUG RESTAURANTS URL =", restaurantsUrl);
+
         const response =
             await (typeof fetchWithRetry === "function"
-                ? fetchWithRetry(`${API_BASE}/restaurants`)
-                : fetch(`${API_BASE}/restaurants`));
+                ? fetchWithRetry(restaurantsUrl)
+                : fetch(restaurantsUrl));
 
 
         if (!response.ok) {

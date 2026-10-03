@@ -1,5 +1,3 @@
-const API_BASE = typeof API_URL !== "undefined" ? API_URL : (window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:3000/api" : "/api");
-
 let brands = [];
 let editingBrandId = null;
 let deletingBrandId = null;
@@ -45,9 +43,13 @@ async function loadBrands() {
 
     try {
 
+        const brandsUrl = `${API_BASE}/brands`;
+        console.log("DEBUG API_BASE =", API_BASE);
+        console.log("DEBUG BRANDS URL =", brandsUrl);
+
         const response = await (typeof fetchWithRetry === "function"
-            ? fetchWithRetry(`${API_BASE}/brands`)
-            : fetch(`${API_BASE}/brands`));
+            ? fetchWithRetry(brandsUrl)
+            : fetch(brandsUrl));
 
         const result = await response.json();
 
